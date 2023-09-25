@@ -2,6 +2,6 @@ numpy
 pandas
 scipy
 sympy
-sklearn
 statsmodels
 numdifftools
+scikit-learn>=0.24.2 # not directly required, pinned by Snyk to avoid a vulnerability
