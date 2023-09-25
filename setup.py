@@ -5,15 +5,15 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(	
-      install_requires=['scipy', 'numpy', 'pandas', 'sympy', 'sklearn', 
-                       		    'statsmodels'],
+      install_requires=['scipy', 'numpy', 'pandas', 'sympy', 'scikit-learn',
+                        'statsmodels', 'numdifftools'],
       include_package_data=True,
       package_data={'': ['examples/*.csv', 'examples/*.npy', 'report/*.html', 'report/*.txt',
 					'examples/*.txt', 'report/css/*.css', 'report/js/*.js']},
       name="semopy",
-      version="2.3.8",
+      version="2.3.10",
       author="Georgy Meshcheryakov",
-      author_email="metsheryakov_ga@spbstu.ru",
+      author_email="iam@georgy.top",
       description="Structural Equation Modeling Optimization in Python.",
       long_description=long_description,
       long_description_content_type="text/markdown",
