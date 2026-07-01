@@ -5,7 +5,7 @@ from typing import Sequence
 from statsmodels.stats.correlation_tools import corr_nearest
 from scipy.optimize import minimize, minimize_scalar
 from itertools import chain, product, combinations
-from scipy.stats import norm, mvn
+from scipy.stats import norm, multivariate_normal
 from .utils import cor
 import pandas as pd
 import numpy as np
@@ -39,7 +39,11 @@ def bivariate_cdf(lower: Sequence[float], upper: Sequence[float], corr: float,
 
     """
     s = np.array([[var[0], corr], [corr, var[1]]])
-    return mvn.mvnun(lower, upper, means, s)[0]
+    dist = multivariate_normal(mean=means, cov=s, allow_singular=True)
+    lower_x, lower_y = lower
+    upper_x, upper_y = upper
+    return (dist.cdf([upper_x, upper_y]) - dist.cdf([lower_x, upper_y])
+            - dist.cdf([upper_x, lower_y]) + dist.cdf([lower_x, lower_y]))
 
 
 def univariate_cdf(lower, upper, mean=0, var=1):
@@ -66,7 +70,8 @@ def univariate_cdf(lower, upper, mean=0, var=1):
         P(lower < x < upper).
 
     """
-    return mvn.mvnun([lower], [upper], [mean], [var])[0]
+    std = np.sqrt(var)
+    return norm.cdf(upper, loc=mean, scale=std) - norm.cdf(lower, loc=mean, scale=std)
 
 
 def estimate_intervals(x, inf=10):

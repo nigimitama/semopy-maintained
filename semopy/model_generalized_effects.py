@@ -545,7 +545,7 @@ class ModelGeneralizedEffects(ModelMeans):
         grad = super().calc_mean_grad(m, c)
         n = len(grad)
         p = len(self.param_vals)
-        grad.extend([np.float(0.0)] * (p - n))
+        grad.extend([0.0] * (p - n))
         return grad
 
     '''

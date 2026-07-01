@@ -85,7 +85,4 @@ class TestModelMeans(unittest.TestCase):
                       political_democracy.get_params())
 
     def test_random_model(self):
-        global params
-        global desc
-        global data
         self.evaluate(desc, data, params, 'MLW')

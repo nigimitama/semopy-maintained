@@ -84,8 +84,4 @@ class TestModelMeans(unittest.TestCase):
         self.evaluate(desc, data, true, 'ML')
 
     def test_random_model(self):
-        global params
-        global desc
-        global data
-        global k
         self.evaluate(desc, data, params, 'ML', k)
