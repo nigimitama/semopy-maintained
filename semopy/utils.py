@@ -122,7 +122,10 @@ def cor(x: np.ndarray):
 
     """
     masked_x = np.ma.array(x, mask=np.isnan(x))
-    cor = np.ma.corrcoef(masked_x, bias=True, rowvar=False).data
+    # bias has no effect on the correlation coefficient itself (it cancels
+    # out between covariance and standard deviations), and newer numpy
+    # versions removed the argument from np.ma.corrcoef entirely.
+    cor = np.ma.corrcoef(masked_x, rowvar=False).data
     if cor.size == 1:
         cor.resize((1, 1))
     return cor
