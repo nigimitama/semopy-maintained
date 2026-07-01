@@ -1237,7 +1237,9 @@ class Model(ModelBase):
         for v in obs:
             if v not in result:
                 result[v] = np.nan
-        result = result[obs].values
+        # .values may return a read-only view under pandas' copy-on-write
+        # semantics, but entries are mutated in place below.
+        result = result[obs].values.copy()
         d = dict()
         if intercepts:
             from .means import estimate_means
