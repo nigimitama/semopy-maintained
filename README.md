@@ -97,5 +97,9 @@ Tutorial and overview of **semopy** features are available at the [project's web
 * **Mescheryakov A. Georgy** - *Developer* - [georgy.m](https://gitlab.org/georgy.m) - student, SPbPU
 * **Igolkina A. Anna** - *Supervisor* - [iganna](https://github.com/iganna) - Engineer, SPbPU
 
+## Maintainer of this fork
+
+* **Masayoshi Mita** - [mitama](https://github.com/nigimitama)
+
 ## License
 This project is licensed under the MIT License - see the LICENSE.md file for details.
