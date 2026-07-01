@@ -68,7 +68,7 @@ def create_regularization(model, regularization='l1-thresh', c=1.0, alpha=None,
             if t:
                 inds.append(i)
         i += 1
-    inds = np.array(inds, dtype=np.int)
+    inds = np.array(inds, dtype=int)
     if regularization == 'l1-naive':
         obj = partial(l1_naive, c=c, inds=inds)
         grad = partial(l1_naive_grad, c=c, inds=inds)

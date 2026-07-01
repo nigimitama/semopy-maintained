@@ -90,9 +90,6 @@ class TestModel(unittest.TestCase):
                           max_abs_err=.3)
 
     def test_random_model(self):
-        global params
-        global desc
-        global data
         self.evaluate(desc, data, params, 'MLW')
         self.evaluate(desc, data, params, 'ULS')
         self.evaluate(desc, data, params, 'GLS')
