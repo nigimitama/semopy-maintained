@@ -47,7 +47,7 @@ class Imputer(Model):
         self.objectives = {'ML': (self.obj_ml, self.grad_ml)}
         self.load_starting_values()
 
-    def finalize_variable_classification(self):
+    def finalize_variable_classification(self, effects: dict):
         """
         Finalize variable classification.
 
@@ -58,7 +58,7 @@ class Imputer(Model):
         None.
 
         """
-        super().finalize_variable_classification()
+        super().finalize_variable_classification(effects)
         if self.factors:
             self.vars['observed'] += sorted(self.vars['latent'])
 
@@ -308,7 +308,7 @@ class ImputerMeans(ModelMeans):
         self.objectives = {'ML': (self.obj_ml, self.grad_ml)}
         self.load_starting_values()
 
-    def finalize_variable_classification(self):
+    def finalize_variable_classification(self, effects: dict):
         """
         Finalize variable classification.
 
@@ -319,7 +319,7 @@ class ImputerMeans(ModelMeans):
         None.
 
         """
-        super().finalize_variable_classification()
+        super().finalize_variable_classification(effects)
         if self.factors:
             self.vars['observed'] += sorted(self.vars['latent'])
 
@@ -688,7 +688,7 @@ class ImputerEffects(ModelEffects):
         self.mx_r_inv = chol_inv(r)
         self.mx_w_inv = chol_inv(w)
 
-    def finalize_variable_classification(self):
+    def finalize_variable_classification(self, effects: dict):
         """
         Finalize variable classification.
 
@@ -699,7 +699,7 @@ class ImputerEffects(ModelEffects):
         None.
 
         """
-        super().finalize_variable_classification()
+        super().finalize_variable_classification(effects)
         if self.factors:
             self.vars['observed'] += sorted(self.vars['latent'])
 

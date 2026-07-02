@@ -265,20 +265,38 @@ def hetcor(data, ords=None, nearest=False):
                     ords.add(var)
         conts = set(data.columns) - set(ords)
     data = data.T
-    c_means = {v: np.nanmean(data[v]) for v in conts}
-    c_vars = {v: np.nanvar(data[v]) for v in conts}
-    c_z = {v: (data[v] - c_means[v]) / c_vars[v] for v in conts}
-    c_pdfs = {v: norm.logpdf(data[v], c_means[v], c_vars[v]) for v in conts}
-    o_ints = {v: estimate_intervals(data[v]) for v in ords}
+    # After transposing a DataFrame, its columns become the original row
+    # index, so variable names must be looked up via .loc instead of
+    # plain __getitem__. A transposed ndarray can still be indexed
+    # positionally as before.
+    row = data.loc if isinstance(data, pd.DataFrame) else data
+    c_means = {v: np.nanmean(row[v]) for v in conts}
+    c_vars = {v: np.nanvar(row[v]) for v in conts}
+    c_z = {v: (row[v] - c_means[v]) / c_vars[v] for v in conts}
+    c_pdfs = {v: norm.logpdf(row[v], c_means[v], c_vars[v]) for v in conts}
+    o_ints = {v: estimate_intervals(row[v]) for v in ords}
+
+    # Plain cov[i][o] = ... chained assignment silently fails to update a
+    # DataFrame under pandas copy-on-write semantics, so entries are set via
+    # .loc for DataFrames (and positionally, as before, for ndarrays).
+    is_df = isinstance(cov, pd.DataFrame)
+
+    def set_cov(i, j, value):
+        if is_df:
+            cov.loc[i, j] = value
+            cov.loc[j, i] = value
+        else:
+            cov[i, j] = value
+            cov[j, i] = value
 
     for c, o in product(conts, ords):
-        cov[c][o] = polyserial_corr(data[c], data[o], x_mean=c_means[c],
-                                    x_var=c_vars[c], x_z=c_z[c],
-                                    x_pdfs=c_pdfs[c], y_ints=o_ints[o])
-        cov[o][c] = cov[c][o]
+        value = polyserial_corr(row[c], row[o], x_mean=c_means[c],
+                                x_var=c_vars[c], x_z=c_z[c],
+                                x_pdfs=c_pdfs[c], y_ints=o_ints[o])
+        set_cov(c, o, value)
     for a, b in combinations(ords, 2):
-        cov[a][b] = polychoric_corr(data[a], data[b], o_ints[a], o_ints[b])
-        cov[b][a] = cov[a][b]
+        value = polychoric_corr(row[a], row[b], o_ints[a], o_ints[b])
+        set_cov(a, b, value)
     if nearest:
         if type(cov) is pd.DataFrame:
             names = cov.columns
