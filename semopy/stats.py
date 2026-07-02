@@ -383,9 +383,17 @@ def calc_rmsea(model, chi2=None, dof=None):
     return np.sqrt((chi2 / dof - 1) / (model.n_samples - 1))
 
 
-def calc_likelihood(model):
+def calc_loglikelihood(model):
     """
-    Calculate likelihood.
+    Calculate the model's log-likelihood.
+
+    Only defined for models fit with the maximum-likelihood ('MLW')
+    objective: the log-likelihood is derived from the multivariate-normal
+    likelihood of the sample covariance matrix (Bollen, 1989, eq. 4.4),
+    which is the same quantity lavaan reports as ``logLik``. For other
+    objectives (FIML, ULS, GLS, WLS, DWLS) no likelihood is implemented
+    here yet, mirroring lavaan itself, which likewise only reports
+    logLik/AIC/BIC for maximum-likelihood estimation.
 
     Parameters
     ----------
@@ -395,11 +403,26 @@ def calc_likelihood(model):
     Returns
     -------
     float
-        Loglikelihood.
+        Log-likelihood.
+
+    Raises
+    ------
+    NotImplementedError
+        If the model was fit with an objective other than 'MLW'.
 
     """
-    # TODO
-    return model.obj_mlw(model.param_vals)
+    name_obj = getattr(model.last_result, 'name_obj', None)
+    if name_obj != 'MLW':
+        raise NotImplementedError(
+            "calc_loglikelihood (and AIC/BIC derived from it) is only "
+            f"implemented for models fit with the 'MLW' objective, not "
+            f"'{name_obj}'."
+        )
+    n, p = model.n_samples, model.mx_cov.shape[0]
+    f_ml = model.last_result.fun
+    # log|Sigma| + tr(Sigma^-1 S) = F_ML + log|S| + p, so this avoids
+    # recomputing Sigma from scratch.
+    return -n / 2 * (p * np.log(2 * np.pi) + model.cov_logdet + p + f_ml)
 
 
 def calc_aic(model, lh=None):
@@ -411,7 +434,7 @@ def calc_aic(model, lh=None):
     model : Model
         Model.
     lh : float, optional
-        Loglikelihood. The default is None.
+        Log-likelihood. The default is None.
 
     Returns
     -------
@@ -420,8 +443,8 @@ def calc_aic(model, lh=None):
 
     """
     if lh is None:
-        lh = calc_likelihood(model)
-    return 2 * (len(model.param_vals) - lh)
+        lh = calc_loglikelihood(model)
+    return 2 * len(model.param_vals) - 2 * lh
 
 
 def calc_bic(model, lh=None):
@@ -433,7 +456,7 @@ def calc_bic(model, lh=None):
     model : Model
         Model.
     lh : float, optional
-        Loglikelihood. The default is None.
+        Log-likelihood. The default is None.
 
     Returns
     -------
@@ -442,7 +465,7 @@ def calc_bic(model, lh=None):
 
     """
     if lh is None:
-        lh = calc_likelihood(model)
+        lh = calc_loglikelihood(model)
     k, n = len(model.param_vals), model.n_samples
     return np.log(n) * k - 2 * lh
 
@@ -584,8 +607,8 @@ def calc_stats(model):
     if not hasattr(model, 'last_result'):
         raise Exception('Can''t gather statitics from model until it is fit.')
     try:
-        lh = calc_likelihood(model)
-    except np.linalg.LinAlgError:
+        lh = calc_loglikelihood(model)
+    except (np.linalg.LinAlgError, NotImplementedError):
         lh = np.nan
     aic = calc_aic(model, lh)
     bic = calc_bic(model, lh)
@@ -644,8 +667,8 @@ def gather_statistics(model, information='expected', robust=False):
     z_scores = calc_zvals(model, std_errors)
     pvalues = calc_pvals(model, z_scores)
     try:
-        lh = calc_likelihood(model)
-    except np.linalg.LinAlgError:
+        lh = calc_loglikelihood(model)
+    except (np.linalg.LinAlgError, NotImplementedError):
         lh = np.nan
     aic = calc_aic(model, lh)
     bic = calc_bic(model, lh)
