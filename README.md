@@ -17,9 +17,9 @@
   - Automatically create fancy HTML reports
 
 ## Installation
-**semopy** is available at PyPi and can be installed by typing the following line into terminal:
+This is a maintained fork of **semopy** and can be installed directly from GitHub by typing the following line into terminal:
 
-`pip install semopy`
+`pip install git+https://github.com/nigimitama/semopy-maintained.git`
 
 
 ## Syntax
