@@ -38,7 +38,8 @@ dependencies = [
 Homepage = "https://semopy.com"
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "flake8"]
+plot = ["graphviz"]
+dev = ["pytest", "pytest-cov", "flake8", "graphviz"]
 
 [tool.setuptools]
 include-package-data = true
