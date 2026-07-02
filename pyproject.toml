@@ -9,7 +9,7 @@ description = "Structural Equation Modeling Optimization in Python."
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Georgy Meshcheryakov", email = "iam@georgy.top" }]
-maintainers = [{ name = "nigimitama", email = "nigimitama16@gmail.com" }]
+maintainers = [{ name = "Masayoshi Mita", email = "nigimitama16@gmail.com" }]
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3.8",
