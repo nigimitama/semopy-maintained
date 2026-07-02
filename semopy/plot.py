@@ -16,7 +16,8 @@ except ModuleNotFoundError:
 
 def semplot(mod: Model, filename: str, inspection=None, plot_covs=False,
             plot_exos=True, images=None, engine='dot', latshape='circle',
-            plot_ests=True, std_ests=False, show=False):
+            plot_ests=True, std_ests=False, show=False, fontname=None,
+            node_attrs=None, edge_attrs=None):
     """
     Draw a SEM diagram.
 
@@ -51,7 +52,22 @@ def semplot(mod: Model, filename: str, inspection=None, plot_covs=False,
         If True and plot_ests is True, then standardized values are plotted
         instead. The default is False.
     show : bool, optional
-        If True, the 
+        If True, the
+    fontname : str, optional
+        Font to use for graph, node and edge labels. Useful for rendering
+        non-Latin scripts (e.g. Japanese, Chinese, Korean) with a font that
+        supports the required glyphs, such as "Noto Sans CJK JP" or
+        "MS Gothic". The default is None, in which case Graphviz's default
+        font is used.
+    node_attrs : dict, optional
+        Additional Graphviz node attributes (e.g. {'fontname': 'IPAGothic'})
+        to apply to all nodes. These are applied after `fontname` and
+        `latshape`, so they can be used to override them selectively. The
+        default is None.
+    edge_attrs : dict, optional
+        Additional Graphviz edge attributes (e.g. {'fontname': 'IPAGothic'})
+        to apply to all edges. These are applied after `fontname`, so they
+        can be used to override it. The default is None.
 
     Returns
     -------
@@ -75,8 +91,16 @@ def semplot(mod: Model, filename: str, inspection=None, plot_covs=False,
     g = graphviz.Digraph('G', format=ext, engine=engine)
 
     g.attr(overlap='scale', splines='true')
+    if fontname is not None:
+        g.attr('graph', fontname=fontname)
+        g.attr('node', fontname=fontname)
+        g.attr('edge', fontname=fontname)
     g.attr('edge', fontsize='12')
+    if edge_attrs:
+        g.attr('edge', **edge_attrs)
     g.attr('node', shape=latshape, fillcolor='#cae6df', style='filled')
+    if node_attrs:
+        g.attr('node', **node_attrs)
     for lat in mod.vars['latent']:
         if lat in images:
             g.node(lat, label='', image=images[lat])
